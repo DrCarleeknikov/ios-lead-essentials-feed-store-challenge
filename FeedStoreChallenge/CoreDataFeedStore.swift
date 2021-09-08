@@ -33,14 +33,7 @@ public final class CoreDataFeedStore: FeedStore {
 
 			do {
 				if let cache = try ManagedCache.find(in: context) {
-					let feed = Array(cache.feed) as! [ManagedFeedImage]
-
-					var localFeed = [LocalFeedImage]()
-					for image in feed {
-						let localImage = LocalFeedImage(id: image.id, description: image.imageDescription, location: image.location, url: image.url)
-						localFeed.append(localImage)
-					}
-					completion(.found(feed: localFeed, timestamp: cache.timestamp))
+					completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
 				} else {
 					completion(.empty)
 				}
@@ -87,6 +80,17 @@ extension ManagedCache {
 		request.fetchLimit = 1
 		return try context.fetch(request).first as? ManagedCache
 	}
+
+	var localFeed: [LocalFeedImage] {
+		let feed = Array(feed) as! [ManagedFeedImage]
+
+		var localFeed = [LocalFeedImage]()
+		for image in feed {
+			let localImage = LocalFeedImage(id: image.id, description: image.imageDescription, location: image.location, url: image.url)
+			localFeed.append(localImage)
+		}
+		return localFeed
+	}
 }
 
 @objc(ManagedFeedImage)
@@ -113,5 +117,3 @@ extension ManagedFeedImage {
 		return NSOrderedSet(array: managedFeed)
 	}
 }
-
-private class FeedImageMapper {}
