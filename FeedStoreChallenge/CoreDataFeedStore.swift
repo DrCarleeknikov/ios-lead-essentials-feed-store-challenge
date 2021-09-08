@@ -30,26 +30,20 @@ public final class CoreDataFeedStore: FeedStore {
 
 	public func retrieve(completion: @escaping RetrievalCompletion) {
 		perform { context in
-			let request = ManagedCache.fetchRequest()
-			request.fetchLimit = 1
+
 			do {
-				guard let cache = try context.fetch(request).first as? ManagedCache else {
+				if let cache = try ManagedCache.find(in: context) {
+					let feed = Array(cache.feed) as! [ManagedFeedImage]
+
+					var localFeed = [LocalFeedImage]()
+					for image in feed {
+						let localImage = LocalFeedImage(id: image.id, description: image.imageDescription, location: image.location, url: image.url)
+						localFeed.append(localImage)
+					}
+					completion(.found(feed: localFeed, timestamp: cache.timestamp))
+				} else {
 					completion(.empty)
-					return
 				}
-
-				guard let feed = Array(cache.feed) as? [ManagedFeedImage] else {
-					completion(.empty)
-					return
-				}
-
-				var localFeed = [LocalFeedImage]()
-				for image in feed {
-					let localImage = LocalFeedImage(id: image.id, description: image.imageDescription, location: image.location, url: image.url)
-					localFeed.append(localImage)
-				}
-
-				completion(.found(feed: localFeed, timestamp: cache.timestamp))
 			} catch {
 				completion(.empty)
 			}
@@ -58,11 +52,11 @@ public final class CoreDataFeedStore: FeedStore {
 
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 		perform { context in
-			let newCache = NSEntityDescription.insertNewObject(forEntityName: String(describing: ManagedCache.self), into: context) as! ManagedCache
-			newCache.timestamp = timestamp
-			newCache.feed = ManagedFeedImage.images(from: feed, in: context)
-
 			do {
+				let newCache = NSEntityDescription.insertNewObject(forEntityName: String(describing: ManagedCache.self), into: context) as! ManagedCache
+				newCache.timestamp = timestamp
+				newCache.feed = ManagedFeedImage.images(from: feed, in: context)
+
 				try context.save()
 				completion(nil)
 			} catch {
@@ -85,6 +79,14 @@ public final class CoreDataFeedStore: FeedStore {
 internal class ManagedCache: NSManagedObject {
 	@NSManaged internal var timestamp: Date
 	@NSManaged internal var feed: NSOrderedSet
+}
+
+extension ManagedCache {
+	class func find(in context: NSManagedObjectContext) throws -> ManagedCache? {
+		let request = ManagedCache.fetchRequest()
+		request.fetchLimit = 1
+		return try context.fetch(request).first as? ManagedCache
+	}
 }
 
 @objc(ManagedFeedImage)
