@@ -29,11 +29,11 @@ public final class CoreDataFeedStore: FeedStore {
 	}
 
 	public func retrieve(completion: @escaping RetrievalCompletion) {
-		context.perform {
+		perform { context in
 			let request = ManagedCache.fetchRequest()
 			request.fetchLimit = 1
 			do {
-				guard let cache = try self.context.fetch(request).first as? ManagedCache else {
+				guard let cache = try context.fetch(request).first as? ManagedCache else {
 					completion(.empty)
 					return
 				}
@@ -57,12 +57,12 @@ public final class CoreDataFeedStore: FeedStore {
 	}
 
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		context.perform {
-			let newCache = NSEntityDescription.insertNewObject(forEntityName: String(describing: ManagedCache.self), into: self.context) as! ManagedCache
+		perform { context in
+			let newCache = NSEntityDescription.insertNewObject(forEntityName: String(describing: ManagedCache.self), into: context) as! ManagedCache
 			newCache.timestamp = timestamp
 			var managedFeed = [ManagedFeedImage]()
 			for image in feed {
-				let managedImage = ManagedFeedImage(context: self.context)
+				let managedImage = ManagedFeedImage(context: context)
 				managedImage.id = image.id
 				managedImage.imageDescription = image.description
 				managedImage.location = image.location
@@ -72,17 +72,21 @@ public final class CoreDataFeedStore: FeedStore {
 			}
 			newCache.feed = NSOrderedSet(array: managedFeed)
 			do {
-				try self.context.save()
+				try context.save()
 				completion(nil)
 			} catch {
 				completion(error)
 			}
-			
 		}
 	}
 
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 		fatalError("Must be implemented")
+	}
+
+	private func perform(_ action: @escaping (NSManagedObjectContext) -> Void) {
+		let context = self.context
+		context.perform { action(context) }
 	}
 }
 
