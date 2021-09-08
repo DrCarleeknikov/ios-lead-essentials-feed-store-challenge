@@ -60,17 +60,8 @@ public final class CoreDataFeedStore: FeedStore {
 		perform { context in
 			let newCache = NSEntityDescription.insertNewObject(forEntityName: String(describing: ManagedCache.self), into: context) as! ManagedCache
 			newCache.timestamp = timestamp
-			var managedFeed = [ManagedFeedImage]()
-			for image in feed {
-				let managedImage = ManagedFeedImage(context: context)
-				managedImage.id = image.id
-				managedImage.imageDescription = image.description
-				managedImage.location = image.location
-				managedImage.url = image.url
-				managedImage.cache = newCache
-				managedFeed.append(managedImage)
-			}
-			newCache.feed = NSOrderedSet(array: managedFeed)
+			newCache.feed = ManagedFeedImage.images(from: feed, in: context)
+
 			do {
 				try context.save()
 				completion(nil)
@@ -104,6 +95,21 @@ internal class ManagedFeedImage: NSManagedObject {
 	@NSManaged internal var url: URL
 
 	@NSManaged internal var cache: ManagedCache
+}
+
+extension ManagedFeedImage {
+	class func images(from images: [LocalFeedImage], in context: NSManagedObjectContext) -> NSOrderedSet {
+		var managedFeed = [ManagedFeedImage]()
+		for image in images {
+			let managedImage = ManagedFeedImage(context: context)
+			managedImage.id = image.id
+			managedImage.imageDescription = image.description
+			managedImage.location = image.location
+			managedImage.url = image.url
+			managedFeed.append(managedImage)
+		}
+		return NSOrderedSet(array: managedFeed)
+	}
 }
 
 private class FeedImageMapper {}
