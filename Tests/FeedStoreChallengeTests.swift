@@ -52,12 +52,12 @@ class FeedStoreChallengeTests: XCTestCase, FailableFeedStoreSpecs {
 	}
 
 	func test_retrieve_hasNoSideEffectsOnFailure() throws {
-//		let stub = NSManagedObjectContext.alwaysFailingFetchStub()
-//		stub.startIntercepting()
-//
-//		let sut = try makeSUT()
-//
-//		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
+		let stub = NSManagedObjectContext.alwaysFailingFetchStub()
+		stub.startIntercepting()
+
+		let sut = try makeSUT()
+
+		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
 	}
 
 	func test_insert_deliversNoErrorOnEmptyCache() throws {
