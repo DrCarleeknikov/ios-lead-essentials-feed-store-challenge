@@ -62,7 +62,7 @@ public final class CoreDataFeedStore: FeedStore {
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 		perform { context in
 			do {
-				try ManagedCache.find(in: context).map(context.delete).map(context.save)
+				try ManagedCache.deletePreviousCache(in: context)
 				completion(nil)
 			} catch {
 				context.rollback()
@@ -84,8 +84,12 @@ internal class ManagedCache: NSManagedObject {
 }
 
 extension ManagedCache {
+	static func deletePreviousCache(in context: NSManagedObjectContext) throws {
+		try find(in: context).map(context.delete).map(context.save)
+	}
+
 	static func newUniqueInstance(in context: NSManagedObjectContext) throws -> ManagedCache {
-		try find(in: context).map(context.delete)
+		try deletePreviousCache(in: context)
 		return NSEntityDescription.insertNewObject(forEntityName: String(describing: ManagedCache.self), into: context) as! ManagedCache
 	}
 
