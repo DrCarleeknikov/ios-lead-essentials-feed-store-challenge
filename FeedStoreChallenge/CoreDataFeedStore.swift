@@ -46,13 +46,15 @@ public final class CoreDataFeedStore: FeedStore {
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 		perform { context in
 			do {
-				let newCache = NSEntityDescription.insertNewObject(forEntityName: String(describing: ManagedCache.self), into: context) as! ManagedCache
+				let newCache = try ManagedCache.newUniqueInstance(in: context)
 				newCache.timestamp = timestamp
-				newCache.feed = ManagedFeedImage.images(from: feed, in: context)
+				newCache.feed = ManagedFeedImage.images(from: feed, in: context, with: newCache)
 
 				try context.save()
 				completion(nil)
+
 			} catch {
+				print(error)
 				completion(error)
 			}
 		}
@@ -75,6 +77,11 @@ internal class ManagedCache: NSManagedObject {
 }
 
 extension ManagedCache {
+	static func newUniqueInstance(in context: NSManagedObjectContext) throws -> ManagedCache {
+		try find(in: context).map(context.delete)
+		return NSEntityDescription.insertNewObject(forEntityName: String(describing: ManagedCache.self), into: context) as! ManagedCache
+	}
+
 	class func find(in context: NSManagedObjectContext) throws -> ManagedCache? {
 		let request = ManagedCache.fetchRequest()
 		request.fetchLimit = 1
@@ -104,7 +111,7 @@ internal class ManagedFeedImage: NSManagedObject {
 }
 
 extension ManagedFeedImage {
-	class func images(from images: [LocalFeedImage], in context: NSManagedObjectContext) -> NSOrderedSet {
+	class func images(from images: [LocalFeedImage], in context: NSManagedObjectContext, with cache: ManagedCache) -> NSOrderedSet {
 		var managedFeed = [ManagedFeedImage]()
 		for image in images {
 			let managedImage = ManagedFeedImage(context: context)
@@ -112,6 +119,7 @@ extension ManagedFeedImage {
 			managedImage.imageDescription = image.description
 			managedImage.location = image.location
 			managedImage.url = image.url
+			managedImage.cache = cache
 			managedFeed.append(managedImage)
 		}
 		return NSOrderedSet(array: managedFeed)
