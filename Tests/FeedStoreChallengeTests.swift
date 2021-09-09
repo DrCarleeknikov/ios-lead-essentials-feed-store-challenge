@@ -97,9 +97,9 @@ class FeedStoreChallengeTests: XCTestCase, FailableFeedStoreSpecs {
 	}
 
 	func test_delete_deliversNoErrorOnEmptyCache() throws {
-//		let sut = try makeSUT()
-//
-//		assertThatDeleteDeliversNoErrorOnEmptyCache(on: sut)
+		let sut = try makeSUT()
+
+		assertThatDeleteDeliversNoErrorOnEmptyCache(on: sut)
 	}
 
 	func test_delete_hasNoSideEffectsOnEmptyCache() throws {
