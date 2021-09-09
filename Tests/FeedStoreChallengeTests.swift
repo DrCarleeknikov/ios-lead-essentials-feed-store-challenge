@@ -79,12 +79,12 @@ class FeedStoreChallengeTests: XCTestCase, FailableFeedStoreSpecs {
 	}
 
 	func test_insert_deliversErrorOnInsertionError() throws {
-//		let stub = NSManagedObjectContext.alwaysFailingSaveStub()
-//		stub.startIntercepting()
-//
-//		let sut = try makeSUT()
-//
-//		assertThatInsertDeliversErrorOnInsertionError(on: sut)
+		let stub = NSManagedObjectContext.alwaysFailingSaveStub()
+		stub.startIntercepting()
+
+		let sut = try makeSUT()
+
+		assertThatInsertDeliversErrorOnInsertionError(on: sut)
 	}
 
 	func test_insert_hasNoSideEffectsOnInsertionError() throws {

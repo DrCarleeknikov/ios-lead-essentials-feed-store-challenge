@@ -54,7 +54,6 @@ public final class CoreDataFeedStore: FeedStore {
 				completion(nil)
 
 			} catch {
-				print(error)
 				completion(error)
 			}
 		}
