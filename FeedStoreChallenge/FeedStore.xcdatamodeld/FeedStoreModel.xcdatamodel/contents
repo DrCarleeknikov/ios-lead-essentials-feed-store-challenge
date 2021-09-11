@@ -9,7 +9,7 @@
         <attribute name="imageDescription" optional="YES" attributeType="String"/>
         <attribute name="location" optional="YES" attributeType="String"/>
         <attribute name="url" attributeType="URI"/>
-        <relationship name="cache" maxCount="1" deletionRule="Cascade" destinationEntity="ManagedCache" inverseName="feed" inverseEntity="ManagedCache"/>
+        <relationship name="cache" maxCount="1" deletionRule="Nullify" destinationEntity="ManagedCache" inverseName="feed" inverseEntity="ManagedCache"/>
     </entity>
     <elements>
         <element name="ManagedCache" positionX="-54" positionY="-9" width="128" height="59"/>
