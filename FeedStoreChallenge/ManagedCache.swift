@@ -21,7 +21,7 @@ extension ManagedCache {
 
 	static func newUniqueInstance(in context: NSManagedObjectContext) throws -> ManagedCache {
 		try deletePreviousCache(in: context)
-		return NSEntityDescription.insertNewObject(forEntityName: String(describing: ManagedCache.self), into: context) as! ManagedCache
+		return ManagedCache(context: context)
 	}
 
 	class func find(in context: NSManagedObjectContext) throws -> ManagedCache? {
@@ -32,7 +32,7 @@ extension ManagedCache {
 	}
 
 	var localFeed: [LocalFeedImage] {
-		let feed = feed.compactMap{ $0 as? ManagedFeedImage }
+		let feed = feed.compactMap { $0 as? ManagedFeedImage }
 
 		var localFeed = [LocalFeedImage]()
 		for image in feed {
