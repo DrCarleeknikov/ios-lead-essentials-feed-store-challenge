@@ -31,7 +31,7 @@ extension ManagedCache {
 	}
 
 	var localFeed: [LocalFeedImage] {
-		let feed = Array(feed) as! [ManagedFeedImage]
+		let feed = feed.compactMap { $0 as? ManagedFeedImage }
 
 		var localFeed = [LocalFeedImage]()
 		for image in feed {
