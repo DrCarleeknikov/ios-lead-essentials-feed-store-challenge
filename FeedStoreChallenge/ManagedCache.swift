@@ -27,11 +27,12 @@ extension ManagedCache {
 	class func find(in context: NSManagedObjectContext) throws -> ManagedCache? {
 		let request = ManagedCache.fetchRequest()
 		request.fetchLimit = 1
+		request.returnsObjectsAsFaults = false
 		return try context.fetch(request).first as? ManagedCache
 	}
 
 	var localFeed: [LocalFeedImage] {
-		let feed = feed.compactMap { $0 as? ManagedFeedImage }
+		let feed = feed.compactMap{ $0 as? ManagedFeedImage }
 
 		var localFeed = [LocalFeedImage]()
 		for image in feed {
