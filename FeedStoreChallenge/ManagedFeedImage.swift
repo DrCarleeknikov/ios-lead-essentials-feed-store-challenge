@@ -19,7 +19,7 @@ final class ManagedFeedImage: NSManagedObject {
 }
 
 extension ManagedFeedImage {
-	class func images(from images: [LocalFeedImage], in context: NSManagedObjectContext) -> NSOrderedSet {
+	static func images(from images: [LocalFeedImage], in context: NSManagedObjectContext) -> NSOrderedSet {
 		var managedFeed = [ManagedFeedImage]()
 		for image in images {
 			let managedImage = ManagedFeedImage(context: context)
