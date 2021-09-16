@@ -19,7 +19,7 @@ final class ManagedFeedImage: NSManagedObject {
 }
 
 extension ManagedFeedImage {
-	class func images(from images: [LocalFeedImage], in context: NSManagedObjectContext, with cache: ManagedCache) -> NSOrderedSet {
+	class func images(from images: [LocalFeedImage], in context: NSManagedObjectContext) -> NSOrderedSet {
 		var managedFeed = [ManagedFeedImage]()
 		for image in images {
 			let managedImage = ManagedFeedImage(context: context)
@@ -27,7 +27,6 @@ extension ManagedFeedImage {
 			managedImage.imageDescription = image.description
 			managedImage.location = image.location
 			managedImage.url = image.url
-			managedImage.cache = cache
 			managedFeed.append(managedImage)
 		}
 		return NSOrderedSet(array: managedFeed)
